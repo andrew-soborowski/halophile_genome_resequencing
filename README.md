@@ -1,6 +1,6 @@
 # Investigating mutational divergence among common lab strains of halophilic archaea
 
-## Andrew L. Soborowski, Rylee K. Hackley, Thorsten Allers, Alexandre Bisson, Charles Daniels, Anita Marchfelder, Julie A. Maupin-Furlow, Peter Schönheit, Sungmin Hwang, Keely Dulmage, Amy K. Schmid
+## Andrew L. Soborowski, Rylee K. Hackley, Sungmin Hwang, Guangyin Zhou, Keely Dulmage, Peter Schönheit, Charles Daniels, Alexandre Bisson, Anita Marchfelder, Julie A. Maupin-Furlow, Thorsten Allers, Amy K. Schmid
 
 ### This repository contains code and data for figures and analysis included in this paper, see [URL] for the manuscript.
 
