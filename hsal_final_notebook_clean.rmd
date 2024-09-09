@@ -171,7 +171,8 @@ muts_syn_global = filter(muts, mut_type == "synonymous", Prevalence=="Global") %
 muts_non_global = filter(muts, mut_type == "noncoding", Prevalence=="Global") %>%
   mutate(position_y = runif(nrow(.), .1, .9))
 muts_cod_global = filter(muts, mut_type == "coding", Prevalence=="Global") %>% 
-  mutate(position_y = runif(nrow(.), .1, .9))
+  #mutate(position_y = runif(nrow(.), .1, .9))
+  mutate(position_y = c(.01, .33, .66, .99, .5, .5, .5, .5))  #Manually doing these cause they are too close together to trust RNG
 
 muts_syn_ura_minus = filter(muts, mut_type == "synonymous", Prevalence=="Parental") %>%
   mutate(position_y = runif(nrow(.), .1,.9))
