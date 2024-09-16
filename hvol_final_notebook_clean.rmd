@@ -20,8 +20,10 @@ Imports and setting working directory
   library(tidyverse)
   library(jsonlite)
   library(readxl)
+  library(plotly)
   library(gplots)
   library(circlize)
+  library(ComplexHeatmap)
   library(httpgd)
   setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
   hgd()
@@ -31,11 +33,10 @@ Note, these figures render much much nicer in your browser. When you run hgd_bro
 it will give you a url. Just throw that in your internet browser if it does not automatically.
 
 One shot code to generate a mutation file. I ran this exactly once to produce metadata files needed later. Should never need to be run again
-and it may overrite your files if you do. The raw mutations file was manually edited to fix some mistakes made by breseq. Both breseq original 
-calls and manually edited calls are included in the final mutation file.
+and it may overrite your files if you do. 
 ```{r}
 '''
-data = read_csv("multi_h_volcanii_compare_table_gdtools.csv") %>%
+data = read_csv("Paper/multi_h_volcanii_compare_table_gdtools_paper_final.csv") %>%
   mutate(mut_id = row_number()) %>%
   mutate_at(vars(contains("hv_")), as.numeric) %>%
   rowwise() %>%
@@ -43,12 +44,12 @@ data = read_csv("multi_h_volcanii_compare_table_gdtools.csv") %>%
   ungroup() %>%
   select(-starts_with("hv_"))
 
-write_csv(data, "h_volcanii_mutations.csv")
+write_csv(data, "Paper/h_volcanii_mutations.csv")
 rm(data)
 
-data = read_csv("multi_h_volcanii_compare_table_gdtools.csv") %>%
+data = read_csv("Paper/multi_h_volcanii_compare_table_gdtools_paper_final.csv") %>%
   select(starts_with("hv")) 
-strains_data = read_xlsx("supplemntary_table_strains.xlsx") %>%
+strains_data = read_xlsx("Paper/supplemntary_table_strains-AKS_final.xlsx") %>%
   filter(Species == "Haloferax volcanii") #Because both species are present in this file
 
 read_names = as_tibble(names(data))      #the names converter to not use gross strain sequencing ids
@@ -56,7 +57,7 @@ names_converter =select(strains_data, Common_Name, Read_File_Name, Locus)
 read_names2 = left_join(read_names, names_converter, by=c("value"="Read_File_Name")) %>%
    mutate(Output_Name = ifelse(is.na(Common_Name), Locus, Common_Name))
 names(data) = read_names2$Output_Name
-write_csv(data, "h_volcanii_mutations_raw_observations.csv")
+write_csv(data, "Paper/h_volcanii_mutations_raw_observations.csv")
 '''
 #Run this once, outputs all the mutations for manual annotation
 
@@ -65,16 +66,18 @@ write_csv(data, "h_volcanii_mutations_raw_observations.csv")
 Basic data reading and preprocessing
 Required files: strain list, mutation file
 ```{r}
-strains_data = read_xlsx("supplemntary_table_strains.xlsx") %>%
+strains_data = read_xlsx("Paper/supplemntary_table_strains-AKS_final.xlsx") %>%
   filter(Species == "Haloferax volcanii") #Because both species are present in this file
 
-data = read_csv("h_volcanii_mutations.csv") %>%
+data = read_csv("filtered_gdtools/multi_h_volcanii_compare_table_gdtools.csv")
+data = read_csv("Paper/multi_h_volcanii_compare_table_gdtools_paper_final.csv")
+data = read_csv("Paper/h_volcanii_mutations_final.csv") %>%
   select(-c(type, seq_id, position, mutation, annotation, gene, description,strains_present_breseq,strains_present_manual_annotation,Expected_KO,mut_type,is_mobile_element, Prevalence))
 
 data_long = pivot_longer(data, cols=-mut_id, names_to="strain", values_to = "presence")
 
 
-all_mutations = read_csv("h_volcanii_mutations.csv") %>%
+all_mutations = read_csv("Paper/h_volcanii_mutations_final.csv") %>%
   select(mut_id, strains_present_manual_annotation, Expected_KO, mut_type, is_mobile_element, Prevalence, seq_id, position)
 
 data_full = left_join(data_long, all_mutations, by=c("mut_id" ))  #Attaching annotated mut data to presence/absence data
@@ -177,21 +180,30 @@ muts_syn_global = filter(muts, mut_type == "synonymous", Prevalence=="Global") %
 muts_non_global = filter(muts, mut_type == "noncoding", Prevalence=="Global") %>%
   mutate(position_y = runif(nrow(.), .1, .9))
 muts_cod_global = filter(muts, mut_type == "coding", Prevalence=="Global") %>% 
-  mutate(position_y = runif(nrow(.), .1, .9))
+  #mutate(position_y = runif(nrow(.), .1, .9))
+  mutate(position_y = c(.01, .25, .25, .5, .75, .99, .75, .5))  #Manually setting y positions for better visualization
 
 muts_syn_ura_minus = filter(muts, mut_type == "synonymous", Prevalence=="Parental") %>%
-  mutate(position_y = runif(nrow(.), .1,.9))
+  #mutate(position_y = runif(nrow(.), .1,.9))
+  mutate(position_y = c(.275, 0, .15, .32, .444, .763))
 muts_non_ura_minus = filter(muts, mut_type == "noncoding", Prevalence=="Parental") %>%
   mutate(position_y = runif(nrow(.), .1,.9))
 muts_cod_ura_minus = filter(muts, mut_type == "coding", Prevalence=="Parental") %>%
-  mutate(position_y = runif(nrow(.), .1,.9))
+  #mutate(position_y = runif(nrow(.), .1,.9))
+  mutate(position_y =c(.730, .453, .49, .66, .83, .99, .661, .866, .666))
 
 muts_cod_KO = filter(muts, mut_type=="coding", Prevalence=="Knockout") %>%
-  mutate(position_y = runif(nrow(.), .1,.9))
+  #mutate(position_y = runif(nrow(.), .1,.9))
+  mutate(position_y = c(0.559, 0.718, .01, 0.2, 0.4, 0.6, 0.8, 0.206, 0.99, 0.331,
+   0.559, 0.354, 0.713, 0.668, 0.437, 0.890, 0.95, 0.670, 0.258, 0.2, 0.837))
 muts_syn_KO = filter(muts, mut_type=="synonymous", Prevalence=="Knockout") %>%
-  mutate(position_y = runif(nrow(.), .1,.9))
+  #mutate(position_y = runif(nrow(.), .1,.9))
+  mutate(position_y = c(.733, .546, .448, .747, .188, .724, .308))
 muts_non_KO = filter(muts, mut_type=="noncoding", Prevalence=="Knockout") %>%  
-  mutate(position_y = runif(nrow(.), .1,.9))
+  #mutate(position_y = runif(nrow(.), .1,.9))
+  mutate(position_y = c(.55, .902, .331, .259, .85, .690, .222, .281, .882, .183,
+   .164, .483, .01, .33, .66, .99, .858, .775, .426, .263,
+   .821, .571, .879))
 
 #Filtering muts into mobile element and non mobile element
 muts_cod_global_TE = filter(muts_cod_global, is_mobile_element == T)
@@ -205,9 +217,12 @@ muts_non_ura_minus_non_TE = filter(muts_non_ura_minus, is_mobile_element == F)
 
 genome_coords = matrix(c(rep(0,4), c(2847757,85092,437906,635786)),ncol=2) #Setting up the genome coordinates
 
+col_coding = "#E7298A"
+col_noncoding = "#A6761D"
+col_synonymous = "#666666"
 
 lgd_points_col = Legend(at = c("mobileome", "non-mobileome", "coding", "noncoding", "synonymous"), #Building the legend
-  type="points", pch=c(15,16,16,16,16), title="Points", legend_gp = gpar(col=c("black","black","red","green","blue")))
+  type="points", pch=c(15,16,16,16,16), title="Points", legend_gp = gpar(col=c("black","black",col_coding,col_noncoding,col_synonymous)))
 
 lgds = packLegend(lgd_points_col)
 
@@ -233,28 +248,35 @@ circos.track(ylim=c(0,1), panel.fun=function(x,y) { #Setting up the chromosome l
 circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 1 mutation track
   circos.axis(h="top", major.at=brk, labels=labels)
 }, track.height=.1)
+
+#Old colors
+#col_coding = "#1B9E77"
+#col_noncoding = "darkorchid4"
+#col_synonymous = "#D95F02"
+
+
 #Plotting class 1 mutations
-circos.trackPoints(muts_cod_global_TE$chr, x=muts_cod_global_TE$position,y=muts_cod_global_TE$position_y, col="red", pch=15)
-circos.trackPoints(muts_cod_global_non_TE$chr, x=muts_cod_global_non_TE$position,y=muts_cod_global_non_TE$position_y, col="red", pch=16)
-circos.trackPoints(muts_syn_global$chr, x=muts_syn_global$position,y=muts_syn_global$position_y, col="blue", pch=16)
-circos.trackPoints(muts_non_global$chr, x=muts_non_global$position,y=muts_non_global$position_y, col="green", pch=16)
-circos.trackPoints(muts_non_global_TE$chr, x=muts_non_global_TE$position,y=muts_non_global_TE$position_y, col="green", pch=15)
+circos.trackPoints(muts_cod_global_TE$chr, x=muts_cod_global_TE$position,y=muts_cod_global_TE$position_y, col=col_coding, pch=15)
+circos.trackPoints(muts_cod_global_non_TE$chr, x=muts_cod_global_non_TE$position,y=muts_cod_global_non_TE$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_global$chr, x=muts_syn_global$position,y=muts_syn_global$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_global$chr, x=muts_non_global$position,y=muts_non_global$position_y, col=col_noncoding, pch=16)
+circos.trackPoints(muts_non_global_TE$chr, x=muts_non_global_TE$position,y=muts_non_global_TE$position_y, col=col_noncoding, pch=15)
 
 circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 2 mutation track
 }, track.height=.1)
 #Plotting class 2 mutations
-circos.trackPoints(muts_cod_ura_minus_TE$chr, x=muts_cod_ura_minus_TE$position,y=muts_cod_ura_minus_TE$position_y, col="red", pch=15)
-circos.trackPoints(muts_cod_ura_minus_non_TE$chr, x=muts_cod_ura_minus_non_TE$position,y=muts_cod_ura_minus_non_TE$position_y, col="red", pch=16)
-circos.trackPoints(muts_syn_ura_minus$chr, x=muts_syn_ura_minus$position,y=muts_syn_ura_minus$position_y, col="blue", pch=16)
-circos.trackPoints(muts_non_ura_minus_TE$chr, x=muts_non_ura_minus_TE$position,y=muts_non_ura_minus_TE$position_y, col="green", pch=15)
-circos.trackPoints(muts_non_ura_minus_non_TE$chr, x=muts_non_ura_minus_non_TE$position,y=muts_non_ura_minus_non_TE$position_y, col="green", pch=16)
+circos.trackPoints(muts_cod_ura_minus_TE$chr, x=muts_cod_ura_minus_TE$position,y=muts_cod_ura_minus_TE$position_y, col=col_coding, pch=15)
+circos.trackPoints(muts_cod_ura_minus_non_TE$chr, x=muts_cod_ura_minus_non_TE$position,y=muts_cod_ura_minus_non_TE$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_ura_minus$chr, x=muts_syn_ura_minus$position,y=muts_syn_ura_minus$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_ura_minus_TE$chr, x=muts_non_ura_minus_TE$position,y=muts_non_ura_minus_TE$position_y, col=col_noncoding, pch=15)
+circos.trackPoints(muts_non_ura_minus_non_TE$chr, x=muts_non_ura_minus_non_TE$position,y=muts_non_ura_minus_non_TE$position_y, col=col_noncoding, pch=16)
 
 circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 3 mutation track
 }, track.height=.1)
 #Plotting class 3 mutations
-circos.trackPoints(muts_cod_KO$chr, x=muts_cod_KO$position,y=muts_cod_KO$position_y, col="red", pch=16)
-circos.trackPoints(muts_syn_KO$chr, x=muts_syn_KO$position,y=muts_syn_KO$position_y, col="blue", pch=16)
-circos.trackPoints(muts_non_KO$chr, x=muts_non_KO$position,y=muts_non_KO$position_y, col="green", pch=16)
+circos.trackPoints(muts_cod_KO$chr, x=muts_cod_KO$position,y=muts_cod_KO$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_KO$chr, x=muts_syn_KO$position,y=muts_syn_KO$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_KO$chr, x=muts_non_KO$position,y=muts_non_KO$position_y, col=col_noncoding, pch=16)
 
 circos.genomicLabels(annotations, labels.column=5, side="inside", cex=.75) #Adding the gene annotations
 
