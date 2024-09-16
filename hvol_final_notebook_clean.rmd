@@ -69,8 +69,6 @@ Required files: strain list, mutation file
 strains_data = read_xlsx("Paper/supplemntary_table_strains-AKS_final.xlsx") %>%
   filter(Species == "Haloferax volcanii") #Because both species are present in this file
 
-data = read_csv("filtered_gdtools/multi_h_volcanii_compare_table_gdtools.csv")
-data = read_csv("Paper/multi_h_volcanii_compare_table_gdtools_paper_final.csv")
 data = read_csv("Paper/h_volcanii_mutations_final.csv") %>%
   select(-c(type, seq_id, position, mutation, annotation, gene, description,strains_present_breseq,strains_present_manual_annotation,Expected_KO,mut_type,is_mobile_element, Prevalence))
 
