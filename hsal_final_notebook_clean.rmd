@@ -201,9 +201,12 @@ muts_non_ura_minus_non_TE = filter(muts_non_ura_minus, is_mobile_element == F)
 
 genome_coords = matrix(c(rep(0,3), c(2014239,191346,365425)),ncol=2)  #Setting up the genome coordinates
 
+col_coding = "#E7298A"
+col_noncoding = "#A6761D"
+col_synonymous = "#666666"
 
 lgd_points_col = Legend(at = c("mobileome", "non-mobileome", "coding", "noncoding", "synonymous"),  #Building the legend
-  type="points", pch=c(15,16,16,16,16), title="Points", legend_gp = gpar(col=c("black","black","red","green","blue")))
+  type="points", pch=c(15,16,16,16,16), title="Points", legend_gp = gpar(col=c("black","black",col_coding,col_noncoding,col_synonymous)))
 
 lgds = packLegend(lgd_points_col)
 
@@ -230,27 +233,27 @@ circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 1 mutat
   circos.axis(h="top", major.at=brk, labels=labels)
 }, track.height=.1)
 #Plotting class 1 mutations
-circos.trackPoints(muts_cod_global_TE$chr, x=muts_cod_global_TE$position,y=muts_cod_global_TE$position_y, col="#1B9E77", pch=15)
-circos.trackPoints(muts_cod_global_non_TE$chr, x=muts_cod_global_non_TE$position,y=muts_cod_global_non_TE$position_y, col="#1B9E77", pch=16)
-circos.trackPoints(muts_syn_global$chr, x=muts_syn_global$position,y=muts_syn_global$position_y, col="darkorchid4", pch=16)
-circos.trackPoints(muts_non_global$chr, x=muts_non_global$position,y=muts_non_global$position_y, col="#D95F02", pch=16)
-circos.trackPoints(muts_non_global_TE$chr, x=muts_non_global_TE$position,y=muts_non_global_TE$position_y, col="#D95F02", pch=15)
+circos.trackPoints(muts_cod_global_TE$chr, x=muts_cod_global_TE$position,y=muts_cod_global_TE$position_y, col=col_coding, pch=15)
+circos.trackPoints(muts_cod_global_non_TE$chr, x=muts_cod_global_non_TE$position,y=muts_cod_global_non_TE$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_global$chr, x=muts_syn_global$position,y=muts_syn_global$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_global$chr, x=muts_non_global$position,y=muts_non_global$position_y, col=col_noncoding, pch=16)
+circos.trackPoints(muts_non_global_TE$chr, x=muts_non_global_TE$position,y=muts_non_global_TE$position_y, col=col_noncoding, pch=15)
 
 circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 2 mutation track
 }, track.height=.1)
 #Plotting class 2 mutations
-circos.trackPoints(muts_cod_ura_minus_TE$chr, x=muts_cod_ura_minus_TE$position,y=muts_cod_ura_minus_TE$position_y, col="#1B9E77", pch=15)
-circos.trackPoints(muts_cod_ura_minus_non_TE$chr, x=muts_cod_ura_minus_non_TE$position,y=muts_cod_ura_minus_non_TE$position_y, col="#1B9E77", pch=16)
-circos.trackPoints(muts_syn_ura_minus$chr, x=muts_syn_ura_minus$position,y=muts_syn_ura_minus$position_y, col="darkorchid4", pch=16)
-circos.trackPoints(muts_non_ura_minus_TE$chr, x=muts_non_ura_minus_TE$position,y=muts_non_ura_minus_TE$position_y, col="#D95F02", pch=15)
-circos.trackPoints(muts_non_ura_minus_non_TE$chr, x=muts_non_ura_minus_non_TE$position,y=muts_non_ura_minus_non_TE$position_y, col="#D95F02", pch=16)
+circos.trackPoints(muts_cod_ura_minus_TE$chr, x=muts_cod_ura_minus_TE$position,y=muts_cod_ura_minus_TE$position_y, col=col_coding, pch=15)
+circos.trackPoints(muts_cod_ura_minus_non_TE$chr, x=muts_cod_ura_minus_non_TE$position,y=muts_cod_ura_minus_non_TE$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_ura_minus$chr, x=muts_syn_ura_minus$position,y=muts_syn_ura_minus$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_ura_minus_TE$chr, x=muts_non_ura_minus_TE$position,y=muts_non_ura_minus_TE$position_y, col=col_noncoding, pch=15)
+circos.trackPoints(muts_non_ura_minus_non_TE$chr, x=muts_non_ura_minus_non_TE$position,y=muts_non_ura_minus_non_TE$position_y, col=col_noncoding, pch=16)
 
 circos.track(ylim=c(0,1), panel.fun=function(x,y){ #Setting up the class 3 mutation track
 }, track.height=.1)
 #Plotting class 3 mutations
-circos.trackPoints(muts_cod_KO$chr, x=muts_cod_KO$position,y=muts_cod_KO$position_y, col="#1B9E77", pch=16)
-circos.trackPoints(muts_syn_KO$chr, x=muts_syn_KO$position,y=muts_syn_KO$position_y, col="darkorchid4", pch=16)
-circos.trackPoints(muts_non_KO$chr, x=muts_non_KO$position,y=muts_non_KO$position_y, col="#D95F02", pch=16)
+circos.trackPoints(muts_cod_KO$chr, x=muts_cod_KO$position,y=muts_cod_KO$position_y, col=col_coding, pch=16)
+circos.trackPoints(muts_syn_KO$chr, x=muts_syn_KO$position,y=muts_syn_KO$position_y, col=col_synonymous, pch=16)
+circos.trackPoints(muts_non_KO$chr, x=muts_non_KO$position,y=muts_non_KO$position_y, col=col_noncoding, pch=16)
 
 circos.genomicLabels(annotations, labels.column=5, side="inside") #Adding the gene annotations
 
