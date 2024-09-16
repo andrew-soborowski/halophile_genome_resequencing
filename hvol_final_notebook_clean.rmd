@@ -70,7 +70,7 @@ strains_data = read_xlsx("Paper/supplemntary_table_strains-AKS_final.xlsx") %>%
   filter(Species == "Haloferax volcanii") #Because both species are present in this file
 
 data = read_csv("Paper/h_volcanii_mutations_final.csv") %>%
-  select(-c(type, seq_id, position, mutation, annotation, gene, description,strains_present_breseq,strains_present_manual_annotation,Expected_KO,mut_type,is_mobile_element, Prevalence))
+  select(-c(type, seq_id, position, mutation, annotation, gene, old_gene_name, description,strains_present_breseq,strains_present_manual_annotation,Expected_KO,mut_type,is_mobile_element, Prevalence))
 
 data_long = pivot_longer(data, cols=-mut_id, names_to="strain", values_to = "presence")
 
