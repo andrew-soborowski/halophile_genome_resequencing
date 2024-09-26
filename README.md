@@ -7,3 +7,5 @@
 #### Dependencies
 * R v 4.2.0
 * Specialized R package dependencies are specified at the start of each Rmd file in this repository.
+
+Sample yml files for conda environments and associated bash commands for read processing are provided, though exact script will require tweaking based on the user's computing platform, cluster setup, and species/file names.
